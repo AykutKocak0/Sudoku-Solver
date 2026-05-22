@@ -392,7 +392,6 @@ public class SudokuSolver {
     }
     private void checkXWingRows(Map<Integer, List<List<Integer>>> positions) {
         for (Map.Entry<Integer, List<List<Integer>>> entry : positions.entrySet()) {
-            Map<List<Integer>, List<Integer>> availablePlacesCopy = deepCopyAvailablePlaces(availablePlaces);
             int candidate = entry.getKey();
             List<List<Integer>> positionList = entry.getValue();
 

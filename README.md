@@ -1,6 +1,7 @@
 # Sudoku Solver & Visualizer
 
-Kod içerisindeki sabit bir 9x9 matris (array) üzerinden alınan Sudoku bulmacalarını çözen ve çözüm adımlarını terminalde anlık olarak gösteren Java tabanlı bir konsol uygulamasıdır.
+Kod içerisindeki sabit bir 9x9 matris (array) üzerinden veya 81 karakterlik sayı içeren stringden alınan Sudoku bulmacalarını çözen ve çözüm adımlarını terminalde anlık olarak gösteren Java tabanlı bir konsol uygulamasıdır.
+Daha iyi bir görüntü için modern bir terminal kullanmalısınız.
 
 ## Derleme ve Çalıştırma
 
