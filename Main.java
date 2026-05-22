@@ -1,20 +1,41 @@
 
 public class Main {
     public static void main(String[] args) {
-        int[][] sudoku = {
-                {3, 0, 0, 0, 4, 9, 0, 0, 0},
-                {0, 0, 0, 6, 0, 0, 5, 0, 1},
-                {7, 5, 2, 0, 0, 1, 0, 0, 0},
-                {0, 0, 1, 0, 0, 0, 7, 0, 0},
-                {5, 0, 0, 3, 9, 6, 0, 0, 0},
-                {0, 0, 8, 1, 5, 0, 0, 9, 6},
-                {0, 0, 3, 0, 1, 0, 0, 6, 0},
-                {0, 0, 4, 0, 0, 0, 1, 0, 0},
-                {0, 0, 0, 0, 2, 8, 0, 0, 0}
-        };
+        // int[][] sudoku = {
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0},
+        //         {0, 0, 0, 0, 0, 0, 0, 0, 0}
+        // };
+        int[][] sudoku = new int[9][9];
+        String numbers = "060010005508030040020008000600000000000100020305009001109003002080000000000040700";
+        sudoku = stringToArray(numbers);
 
 
         SudokuSolver ss = new SudokuSolver(sudoku);
         ss.solve();
-        }
     }
+    private static int[][] stringToArray(String numbers) {
+        int[][] sudokuArray = new int[9][9];
+        int index = 0; 
+        
+        for (char c : numbers.toCharArray()) {
+            if (index >= 81) break; 
+            
+            int row = index / 9;
+            int column = index % 9;
+            
+            sudokuArray[row][column] = Character.getNumericValue(c);
+            
+            index++; 
+        }
+        
+        return sudokuArray;
+    }
+
+}
