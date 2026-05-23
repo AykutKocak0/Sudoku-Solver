@@ -11,6 +11,7 @@ public class SudokuSolver {
         this.sudoku = sudoku;
 
     }
+    
     private void setAvailableNumbers() {
         availablePlaces.clear();
         for (int i = 0; i < sudoku.length; i++) {
@@ -20,6 +21,7 @@ public class SudokuSolver {
             }
         }
     }
+    
     private void checker(int row, int col) {
         List<Integer> candidates = availablePlaces.get(Arrays.asList(row, col));
         if (candidates == null) return;
@@ -47,6 +49,7 @@ public class SudokuSolver {
             }
         }
     }
+    
     private void basicSolver() {
         for (int i = 0; i < sudoku.length; i++) {
             for (int j = 0; j < sudoku[i].length; j++) {
@@ -62,6 +65,7 @@ public class SudokuSolver {
             }
         }
     }
+    
     private void rowHiddenSingle(int row) {
         List<Integer> found = new ArrayList<>();
         for (int i = 0; i < sudoku[row].length; i++) {
@@ -161,6 +165,7 @@ public class SudokuSolver {
         }
         return true;
     }
+    
     private void nakedPairsRow(int row) {
         List<List<Integer>> pairs = new ArrayList<>();
         List<List<Integer>> pairsToRemove = new ArrayList<>();
@@ -332,6 +337,7 @@ public class SudokuSolver {
             }
         }
     }
+    
     private void BoxToLine(int boxRow, int boxCol) {
         int rowStart = boxRow * 3;
         int colStart = boxCol * 3;
@@ -390,6 +396,7 @@ public class SudokuSolver {
             }
         }
     }
+    
     private void checkXWingRows(Map<Integer, List<List<Integer>>> positions) {
         for (Map.Entry<Integer, List<List<Integer>>> entry : positions.entrySet()) {
             int candidate = entry.getKey();
@@ -481,41 +488,15 @@ public class SudokuSolver {
     }
 
     private void xWing() {
-        Map<Integer, List<List<Integer>>> candidatePositions = new HashMap<>();
-
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                if (sudoku[row][col] == 0) {
-                    List<Integer> candidates = availablePlaces.get(Arrays.asList(row, col));
-                    if (candidates != null) {
-                        for (int candidate : candidates) {
-                            candidatePositions.computeIfAbsent(candidate, k -> new ArrayList<>()).add(Arrays.asList(row, col));
-                        }
-                    }
-                }
-            }
-        }
-
-        checkXWingRows(candidatePositions);
-        checkXWingColumns(candidatePositions);
+        checkXWingRows(getCandidatePositions());
+        checkXWingColumns(getCandidatePositions());
     }
+    
     private void swordFish(){
-        Map<Integer, List<List<Integer>>> candidatePositions = new HashMap<>();
-        for (int row = 0; row < 9; row++) {
-            for (int col = 0; col < 9; col++) {
-                if (sudoku[row][col] == 0) {
-                    List<Integer> candidates = availablePlaces.get(Arrays.asList(row, col));
-                    if (candidates != null) {
-                        for (int candidate : candidates) {
-                            candidatePositions.computeIfAbsent(candidate, k -> new ArrayList<>()).add(Arrays.asList(row, col));
-                        }
-                    }
-                }
-            }
-        }
-        checkSwordFishRow(candidatePositions);
-        checkSwordFishColumns(candidatePositions);
+        checkSwordFishRow(getCandidatePositions());
+        checkSwordFishColumns(getCandidatePositions());
     }
+    
     private void checkSwordFishRow(Map<Integer, List<List<Integer>>> candidatePositions) {
         for (Map.Entry<Integer, List<List<Integer>>> entry : candidatePositions.entrySet()) {
             int candidate = entry.getKey();
@@ -563,55 +544,73 @@ public class SudokuSolver {
             }
         }
     }
+    
     private void checkSwordFishColumns(Map<Integer, List<List<Integer>>> candidatePositions) {
         for (Map.Entry<Integer, List<List<Integer>>> entry : candidatePositions.entrySet()) {
             int candidate = entry.getKey();
-            List<List<Integer>> positionList = entry.getValue();
+            List<List<Integer>> positions = entry.getValue();
 
-            Map<Integer, List<Integer>> rowToCols = new HashMap<>();
-            for (List<Integer> pos : positionList) {
+            Map<Integer, Set<Integer>> colToRows = new HashMap<>();
+            for (List<Integer> pos : positions) {
                 int row = pos.get(0);
                 int col = pos.get(1);
-                rowToCols.computeIfAbsent(row, k -> new ArrayList<>()).add(col);
+                colToRows.computeIfAbsent(col, k -> new HashSet<>()).add(row);
             }
 
-            List<Integer> candidateRows = new ArrayList<>();
-            for (Map.Entry<Integer, List<Integer>> rcEntry : rowToCols.entrySet()) {
-                List<Integer> cols = rcEntry.getValue();
-                if (cols.size() >= 2 && cols.size() <= 3) {
-                    candidateRows.add(rcEntry.getKey());
+            List<Integer> validCols = new ArrayList<>();
+            for (Map.Entry<Integer, Set<Integer>> cr : colToRows.entrySet()) {
+                if (cr.getValue().size() >= 2 && cr.getValue().size() <= 3) {
+                    validCols.add(cr.getKey());
                 }
             }
 
-            for (int i = 0; i < candidateRows.size(); i++) {
-                for (int j = i + 1; j < candidateRows.size(); j++) {
-                    for (int k = j + 1; k < candidateRows.size(); k++) {
+            for (int i = 0; i < validCols.size(); i++) {
+                for (int j = i + 1; j < validCols.size(); j++) {
+                    for (int k = j + 1; k < validCols.size(); k++) {
+                        int c1 = validCols.get(i);
+                        int c2 = validCols.get(j);
+                        int c3 = validCols.get(k);
 
-                        List<Integer> r1Cols = new ArrayList<>(rowToCols.get(candidateRows.get(i)));
-                        List<Integer> r2Cols = new ArrayList<>(rowToCols.get(candidateRows.get(j)));
-                        List<Integer> r3Cols = new ArrayList<>(rowToCols.get(candidateRows.get(k)));
+                        Set<Integer> combinedRows = new HashSet<>();
+                        combinedRows.addAll(colToRows.get(c1));
+                        combinedRows.addAll(colToRows.get(c2));
+                        combinedRows.addAll(colToRows.get(c3));
 
-                        Set<Integer> combinedCols = new HashSet<>();
-                        combinedCols.addAll(r1Cols);
-                        combinedCols.addAll(r2Cols);
-                        combinedCols.addAll(r3Cols);
-
-                        if (combinedCols.size() == 3) {
-                            for (int col : combinedCols) {
-                                for (int row = 0; row < 9; row++) {
-                                    if (row != candidateRows.get(i) && row != candidateRows.get(j) && row != candidateRows.get(k)) {
-                                        List<Integer> candidates = availablePlaces.get(Arrays.asList(row, col));
-                                        if (candidates != null && candidates.contains(candidate)) {
-                                            candidates.remove(Integer.valueOf(candidate));
-                                        }
+                        if (combinedRows.size() == 3) {
+                            for (int col = 0; col < 9; col++) {
+                                if (col == c1 || col == c2 || col == c3) continue;
+                                
+                                for (int row : combinedRows) {
+                                    List<Integer> cellCandidates = availablePlaces.get(Arrays.asList(row, col));
+                                    if (cellCandidates != null && cellCandidates.contains(candidate)) {
+                                        cellCandidates.remove(Integer.valueOf(candidate));
                                     }
                                 }
                             }
+                            
                         }
                     }
                 }
             }
         }
+    }
+
+    private Map<Integer, List<List<Integer>>> getCandidatePositions(){
+        Map<Integer, List<List<Integer>>> candidatePositions = new HashMap<>();
+
+        for (int row = 0; row < 9; row++) {
+            for (int col = 0; col < 9; col++) {
+                if (sudoku[row][col] == 0) {
+                    List<Integer> candidates = availablePlaces.get(Arrays.asList(row, col));
+                    if (candidates != null) {
+                        for (int candidate : candidates) {
+                            candidatePositions.computeIfAbsent(candidate, k -> new ArrayList<>()).add(Arrays.asList(row, col));
+                        }
+                    }
+                }
+            }
+        }
+        return candidatePositions;
     }
 
     private boolean hasZeros() {
@@ -624,6 +623,7 @@ public class SudokuSolver {
         }
         return false;
     }
+    
     private int[][] deepCloneGrid(int[][] grid) {
         int[][] clone = new int[9][9];
         for (int i = 0; i < 9; i++) {
@@ -631,6 +631,7 @@ public class SudokuSolver {
         }
         return clone;
     }
+    
     private Map<List<Integer>, List<Integer>> deepCopyAvailablePlaces(Map<List<Integer>, List<Integer>> original) {
         Map<List<Integer>, List<Integer>> copy = new HashMap<>();
         for (Map.Entry<List<Integer>, List<Integer>> entry : original.entrySet()) {
@@ -660,6 +661,7 @@ public class SudokuSolver {
             }
         }
     }
+    
     private void applyBoxToLine() {
         for (int boxRow = 0; boxRow < 3; boxRow++) {
             for (int boxCol = 0; boxCol < 3; boxCol++) {
@@ -725,6 +727,7 @@ public class SudokuSolver {
             }
         } while ((hasZeros() && progressMade));
     }
+    
     private boolean solveWithGuessAndBasics() {
         solveBasics();
         if (!hasZeros()) {
@@ -773,6 +776,7 @@ public class SudokuSolver {
         }
         return false;
     }
+    
     public String solve() {
         guessCount = 0;
         SudokuVisualizer.initializeGrid(sudoku);
